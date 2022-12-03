@@ -28,5 +28,21 @@ describe('todos routes', () => {
     pool.end();
   });
 
-  it('/api/v1/todos should ');
+  it('/api/v1/todos should post a todo with current user', async () => {
+    const [agent] = await registerAndLogin();
+    const mockTodo = {
+      task: 'do dishes',
+    };
+
+    const resp = await agent.post('/api/v1/todos').send(mockTodo);
+    expect(resp.status).toEqual(200);
+    expect(resp.body).toMatchInlineSnapshot(`
+      Object {
+        "complete": false,
+        "id": "1",
+        "task": "do dishes",
+        "user_id": "1",
+      }
+    `);
+  });
 });
