@@ -47,9 +47,24 @@ describe('todos routes', () => {
   });
 
   it('GET /api/v1/todos should return a list of todos from the authenticated user', async () => {
+    const mockTodo1 = {
+      task: 'clean',
+    };
     const [agent] = await registerAndLogin();
+    const testResp = await agent.post('/api/v1/todos').send(mockTodo1);
     const resp = await agent.get('/api/v1/todos');
+    console.log(testResp.body);
+
     expect(resp.status).toBe(200);
-    expect(resp.body).toMatchInlineSnapshot(`Array []`);
+    expect(resp.body).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "complete": false,
+          "id": "1",
+          "task": "clean",
+          "user_id": "1",
+        },
+      ]
+    `);
   });
 });
