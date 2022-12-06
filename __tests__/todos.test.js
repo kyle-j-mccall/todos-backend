@@ -28,7 +28,7 @@ describe('todos routes', () => {
     pool.end();
   });
 
-  it('/api/v1/todos should post a todo with current user', async () => {
+  it('POST /api/v1/todos should post a todo with current user', async () => {
     const [agent] = await registerAndLogin();
     const mockTodo = {
       task: 'do dishes',
@@ -44,5 +44,12 @@ describe('todos routes', () => {
         "user_id": "1",
       }
     `);
+  });
+
+  it('GET /api/v1/todos should return a list of todos from the authenticated user', async () => {
+    const [agent] = await registerAndLogin();
+    const resp = await agent.get('/api/v1/todos');
+    expect(resp.status).toBe(200);
+    expect(resp.body).toMatchInlineSnapshot(`Array []`);
   });
 });
