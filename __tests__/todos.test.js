@@ -3,6 +3,7 @@ const setup = require('../data/setup');
 const request = require('supertest');
 const app = require('../lib/app');
 const UserService = require('../lib/services/UserService');
+const { Todo } = require('../lib/models/Todo');
 
 const mockUser = {
   firstName: 'Testing',
@@ -47,10 +48,11 @@ describe('todos routes', () => {
   });
 
   it('GET /api/v1/todos should return a list of todos from the authenticated user', async () => {
+    const [agent, user] = await registerAndLogin();
     const mockTodo1 = {
       task: 'clean',
+      user_id: user.id,
     };
-    const [agent] = await registerAndLogin();
     const testResp = await agent.post('/api/v1/todos').send(mockTodo1);
     const resp = await agent.get('/api/v1/todos');
     console.log(testResp.body);
@@ -66,5 +68,20 @@ describe('todos routes', () => {
         },
       ]
     `);
+  });
+  it('PUT /api/v1/todos/:id should update an authenticated users todos', async () => {
+    const [agent, user] = await registerAndLogin();
+    console.log('updateeee', user);
+    const todo = await Todo.insert({
+      task: 'watch movie',
+      user_id: user.id,
+    });
+    await agent.post('/api/v1/todos').send(todo);
+
+    const resp = await agent
+      .put(`/api/v1/todos/${todo.id}`)
+      .send({ complete: true });
+    expect(resp.status).toBe(200);
+    expect(resp.body.complete).toBe(true);
   });
 });
