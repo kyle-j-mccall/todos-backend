@@ -53,9 +53,8 @@ describe('todos routes', () => {
       task: 'clean',
       user_id: user.id,
     };
-    const testResp = await agent.post('/api/v1/todos').send(mockTodo1);
+    await agent.post('/api/v1/todos').send(mockTodo1);
     const resp = await agent.get('/api/v1/todos');
-    console.log(testResp.body);
 
     expect(resp.status).toBe(200);
     expect(resp.body).toMatchInlineSnapshot(`
@@ -71,7 +70,6 @@ describe('todos routes', () => {
   });
   it('PUT /api/v1/todos/:id should update an authenticated users todos', async () => {
     const [agent, user] = await registerAndLogin();
-    console.log('updateeee', user);
     const todo = await Todo.insert({
       task: 'watch movie',
       user_id: user.id,
@@ -83,5 +81,17 @@ describe('todos routes', () => {
       .send({ complete: true });
     expect(resp.status).toBe(200);
     expect(resp.body.complete).toBe(true);
+  });
+  it('DELETE api/v1/todos/:id should delete an authenticated users todo', async () => {
+    const [agent, user] = await registerAndLogin();
+    const todo = await Todo.insert({
+      task: 'go shopping',
+      user_id: user.id,
+    });
+    const resp = await agent.delete(`/api/v1/todos/${todo.id}`);
+    expect(resp.status).toBe(200);
+
+    const check = await Todo.getById(todo.id);
+    expect(check).toBe(null);
   });
 });
